@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>¿Quién es ese Pokémon?</title>
+    <meta name="description" content="Juego de adivinanza de Pokémon - Adivina el Pokémon por su silueta">
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Poppins:wght@400;600;700&display=swap"
+        rel="stylesheet">
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div class="background-gradient"></div>
+
+    <div class="container">
+        <!-- Header -->
+        <header>
+            <h1 class="game-title">¿Quién es ese Pokémon?</h1>
+
+            <!-- Game Controls -->
+            <div class="game-controls">
+                <!-- Difficulty Selector -->
+                <div class="difficulty-selector">
+                    <label for="difficulty">Dificultad:</label>
+                    <select id="difficulty" class="control-select">
+                        <option value="easy">Fácil (Gen 1)</option>
+                        <option value="medium" selected>Medio (Gen 1-3)</option>
+                        <option value="hard">Difícil (Todos)</option>
+                    </select>
+                </div>
+
+                <!-- Game Mode Selector -->
+                <div class="mode-selector">
+                    <label for="gameMode">Modo:</label>
+                    <select id="gameMode" class="control-select">
+                        <option value="normal" selected>Normal</option>
+                        <option value="timed">Contrarreloj</option>
+                        <option value="survival">Supervivencia</option>
+                    </select>
+                </div>
+
+                <!-- Action Buttons -->
+                <button id="statsButton" class="icon-btn" title="Ver Estadísticas">
+                    📊
+                </button>
+                <button id="settingsButton" class="icon-btn" title="Configuración">
+                    ⚙️
+                </button>
+                <button id="resetButton" class="icon-btn" title="Reiniciar Juego">
+                    🔄
+                </button>
+            </div>
+
+            <!-- Score and Timer Container -->
+            <div class="score-timer-container">
+                <div class="score-container">
+                    <span class="score-label">Puntuación:</span>
+                    <span class="score" id="score">0</span>
+                </div>
+
+                <!-- Timer (for timed mode) -->
+                <div class="timer-container hidden" id="timerContainer">
+                    <span class="timer-label">⏱️ Tiempo:</span>
+                    <span class="timer" id="timer">60</span>
+                </div>
+
+                <!-- Lives (for survival mode) -->
+                <div class="lives-container hidden" id="livesContainer">
+                    <span class="lives-label">❤️ Vidas:</span>
+                    <span class="lives" id="lives">3</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Game Area -->
+        <main class="game-area">
+            <!-- Pokemon Display -->
+            <div class="pokemon-display" id="pokemonDisplay">
+                <div class="pokemon-container">
+                    <img src="" alt="Pokemon Silueta" id="pokemonImage" class="pokemon-image silhouette">
+                    <div class="loading" id="loading">
+                        <div class="pokeball-loader"></div>
+                        <p>Cargando Pokémon...</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Input Area -->
+            <div class="input-area" id="inputArea">
+                <div class="input-wrapper">
+                    <input type="text" id="guessInput" class="guess-input" placeholder="¿Quién es ese Pokémon?"
+                        autocomplete="off">
+                    <div class="attempts-counter" id="attemptsCounter">
+                        Intentos: <span id="attemptsLeft">3</span>/3
+                    </div>
+                </div>
+                <div class="action-buttons">
+                    <button id="guessButton" class="btn btn-primary">
+                        <span>Adivinar</span>
+                    </button>
+                    <button id="hintButton" class="btn btn-hint" title="Cuesta 5 puntos">
+                        💡 Pista
+                    </button>
+                </div>
+            </div>
+
+            <!-- Hint Display -->
+            <div class="hint-display hidden" id="hintDisplay"></div>
+
+            <!-- Message Area -->
+            <div class="message" id="message"></div>
+
+            <!-- Pokemon Card (Hidden Initially) -->
+            <div class="card-container hidden" id="cardContainer">
+                <div class="pokemon-card">
+                    <!-- Card Border -->
+                    <div class="card-border">
+                        <!-- Top Section: Name and HP -->
+                        <div class="card-top">
+                            <div class="card-name-section">
+                                <h2 class="pokemon-name" id="cardName"></h2>
+                                <span class="pokemon-hp" id="cardHP"></span>
+                            </div>
+                            <div class="evolution-stage" id="cardStage">Basic</div>
+                        </div>
+
+                        <!-- Image Section -->
+                        <div class="card-image-frame">
+                            <img src="" alt="" id="cardImage" class="card-pokemon-image">
+                        </div>
+
+                        <!-- Type and Info Bar -->
+                        <div class="card-type-bar">
+                            <div class="pokemon-types" id="cardTypes"></div>
+                            <span class="pokemon-id" id="cardId"></span>
+                        </div>
+
+                        <!-- Abilities/Attacks Section -->
+                        <div class="card-attacks" id="cardAttacks">
+                            <!-- Dynamic attacks will be added here -->
+                        </div>
+
+                        <!-- Bottom Stats -->
+                        <div class="card-bottom-stats">
+                            <div class="stat-row">
+                                <div class="stat-item">
+                                    <span class="stat-icon">⚔️</span>
+                                    <span class="stat-label">Weakness</span>
+                                    <span class="stat-value" id="cardWeakness">None</span>
+                                </div>
+                                <div class="stat-item">
+                                    <span class="stat-icon">🛡️</span>
+                                    <span class="stat-label">Resistance</span>
+                                    <span class="stat-value" id="cardResistance">None</span>
+                                </div>
+                            </div>
+                            <div class="physical-stats">
+                                <span class="phys-stat">Height: <strong id="cardHeight"></strong></span>
+                                <span class="phys-stat">Weight: <strong id="cardWeight"></strong></span>
+                            </div>
+                        </div>
+
+                        <!-- Footer -->
+                        <div class="card-footer">
+                            <div class="card-rarity">
+                                <span class="rarity-symbol">★</span>
+                                <span class="rarity-text">Rare</span>
+                            </div>
+                            <div class="card-collection" id="cardCollection"></div>
+                        </div>
+                    </div>
+                </div>
+                <button id="nextButton" class="btn btn-next">
+                    <span>Siguiente Pokémon</span>
+                </button>
+            </div>
+        </main>
+
+        <!-- Statistics Modal -->
+        <div class="modal hidden" id="statsModal">
+            <div class="modal-content stats-modal">
+                <div class="modal-header">
+                    <h2>📊 Estadísticas</h2>
+                    <button class="close-modal" data-modal="statsModal">✕</button>
+                </div>
+                <div class="modal-body">
+                    <div class="stat-grid">
+                        <div class="stat-card">
+                            <div class="stat-value" id="totalGuesses">0</div>
+                            <div class="stat-label">Total Adivinados</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="accuracy">0%</div>
+                            <div class="stat-label">Precisión</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="bestScore">0</div>
+                            <div class="stat-label">Mejor Puntuación</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-value" id="bestStreak">0</div>
+                            <div class="stat-label">Mejor Racha</div>
+                        </div>
+                    </div>
+                    <div class="achievements-section">
+                        <h3>🏆 Logros</h3>
+                        <div class="achievements-list" id="achievementsList"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Settings Modal -->
+        <div class="modal hidden" id="settingsModal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2>⚙️ Configuración</h2>
+                    <button class="close-modal" data-modal="settingsModal">✕</button>
+                </div>
+                <div class="modal-body">
+                    <div class="setting-item">
+                        <label class="setting-label">
+                            <input type="checkbox" id="soundToggle" checked>
+                            <span>Efectos de Sonido</span>
+                        </label>
+                    </div>
+                    <div class="setting-item">
+                        <label class="setting-label">
+                            <input type="checkbox" id="animationsToggle" checked>
+                            <span>Animaciones</span>
+                        </label>
+                    </div>
+                    <div class="setting-item">
+                        <label class="setting-label">
+                            <input type="checkbox" id="confettiToggle" checked>
+                            <span>Confetti al Acertar</span>
+                        </label>
+                    </div>
+                    <button id="resetStatsButton" class="btn btn-danger">
+                        Reiniciar Estadísticas
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tutorial Overlay -->
+        <div class="tutorial-overlay hidden" id="tutorialOverlay">
+            <div class="tutorial-content">
+                <h2>🎮 Cómo Jugar</h2>
+                <div class="tutorial-steps">
+                    <div class="tutorial-step">
+                        <span class="step-number">1</span>
+                        <p>Observa la silueta del Pokémon</p>
+                    </div>
+                    <div class="tutorial-step">
+                        <span class="step-number">2</span>
+                        <p>Escribe el nombre (¡errores pequeños son aceptados!)</p>
+                    </div>
+                    <div class="tutorial-step">
+                        <span class="step-number">3</span>
+                        <p>Usa pistas si necesitas ayuda (💡 cuesta 5 puntos)</p>
+                    </div>
+                    <div class="tutorial-step">
+                        <span class="step-number">4</span>
+                        <p>¡Revela la carta TCG al acertar!</p>
+                    </div>
+                </div>
+                <button id="closeTutorial" class="btn btn-primary">¡Entendido!</button>
+                <label class="tutorial-checkbox">
+                    <input type="checkbox" id="dontShowAgain">
+                    No mostrar de nuevo
+                </label>
+            </div>
+        </div>
+
+        <!-- Game Over Modal -->
+        <div class="modal hidden" id="gameOverModal">
+            <div class="modal-content game-over-modal">
+                <div class="modal-header">
+                    <h2 id="gameOverTitle">🏁 Juego Terminado</h2>
+                </div>
+                <div class="modal-body">
+                    <div class="final-score">
+                        <div class="score-label">Puntuación Final</div>
+                        <div class="score-value" id="finalScore">0</div>
+                    </div>
+                    <div class="game-over-stats" id="gameOverStats"></div>
+                    <button id="playAgainButton" class="btn btn-primary">
+                        Jugar de Nuevo
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Confetti Canvas -->
+        <canvas id="confettiCanvas" class="confetti-canvas"></canvas>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
